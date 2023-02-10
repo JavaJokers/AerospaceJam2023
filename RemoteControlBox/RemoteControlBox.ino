@@ -35,21 +35,21 @@
  * If no protocol is defined, all protocols (except Bang&Olufsen) are active.
  * This must be done before the #include <IRremote.hpp>
  */
-//#define DECODE_DENON        // Includes Sharp
-//#define DECODE_JVC
-//#define DECODE_KASEIKYO
-//#define DECODE_PANASONIC    // alias for DECODE_KASEIKYO
-//#define DECODE_LG
+#define DECODE_DENON        // Includes Sharp
+#define DECODE_JVC
+#define DECODE_KASEIKYO
+#define DECODE_PANASONIC    // alias for DECODE_KASEIKYO
+#define DECODE_LG
 #define DECODE_NEC          // Includes Apple and Onkyo
-//#define DECODE_SAMSUNG
-//#define DECODE_SONY
-//#define DECODE_RC5
-//#define DECODE_RC6
+#define DECODE_SAMSUNG
+#define DECODE_SONY
+#define DECODE_RC5
+#define DECODE_RC6
 
-//#define DECODE_BOSEWAVE
-//#define DECODE_LEGO_PF
-//#define DECODE_MAGIQUEST
-//#define DECODE_WHYNTER
+#define DECODE_BOSEWAVE
+#define DECODE_LEGO_PF
+#define DECODE_MAGIQUEST
+#define DECODE_WHYNTER
 
 //#define DECODE_DISTANCE_WIDTH // Universal decoder for pulse distance width protocols
 //#define DECODE_HASH         // special decoder for all protocols
@@ -120,21 +120,21 @@ void loop() {
         /*
          * Finally, check the received data and perform actions according to the received command
          */
-        if (IrReceiver.decodedIRData.command == 0x4A) {
+        if (IrReceiver.decodedIRData.command == 0x15) {
             Serial.println("OK");
-        } else if (IrReceiver.decodedIRData.command == 0x47) {
+        } else if (IrReceiver.decodedIRData.command == 0xB) {
             Serial.println("Up");
             // Turn on the led
             digitalWrite(3, HIGH);
-            servo1.write(20);
-        } else if (IrReceiver.decodedIRData.command == 0x4D) {
+            servo1.write(5);
+        } else if (IrReceiver.decodedIRData.command == 0xC) {
             Serial.println("Down");
             // Turn off the led
             digitalWrite(3, LOW);
             servo1.write(80);
-        } else if (IrReceiver.decodedIRData.command == 0x49) {
+        } else if (IrReceiver.decodedIRData.command == 0xD){
             Serial.println("Left");
-        } else if (IrReceiver.decodedIRData.command == 0x4B) {
+        } else if (IrReceiver.decodedIRData.command == 0xE) {
             Serial.println("Right");
         }
     }
