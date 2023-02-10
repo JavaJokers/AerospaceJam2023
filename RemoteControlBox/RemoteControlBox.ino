@@ -120,21 +120,21 @@ void loop() {
         /*
          * Finally, check the received data and perform actions according to the received command
          */
-        if (IrReceiver.decodedIRData.command == 0x15) {
+        if (IrReceiver.decodedIRData.command == 0x68) {
             Serial.println("OK");
-        } else if (IrReceiver.decodedIRData.command == 0xB) {
+        } else if (IrReceiver.decodedIRData.command == 0x60) {
             Serial.println("Up");
             // Turn on the led
             digitalWrite(3, HIGH);
             servo1.write(5);
-        } else if (IrReceiver.decodedIRData.command == 0xC) {
+        } else if (IrReceiver.decodedIRData.command == 0x61) {
             Serial.println("Down");
             // Turn off the led
             digitalWrite(3, LOW);
             servo1.write(80);
-        } else if (IrReceiver.decodedIRData.command == 0xD){
+        } else if (IrReceiver.decodedIRData.command == 0x65){
             Serial.println("Left");
-        } else if (IrReceiver.decodedIRData.command == 0xE) {
+        } else if (IrReceiver.decodedIRData.command == 0x62) {
             Serial.println("Right");
         }
     }
