@@ -296,7 +296,8 @@ void noTone(uint8_t aPinNumber){
 #endif // defined(ESP8266)
 
 #if defined(ESP32) || defined(ARDUINO_ARCH_RP2040) || defined(PARTICLE) || defined(ARDUINO_ARCH_MBED)
-#define SEND_PWM_BY_TIMER // We do not have pin restrictions for this CPU's, so lets use the hardware PWM for send carrier signal generation
+#define SEND_PWM_BY_TIMER // We do not have pin restrictions for this CPU
+'s, so lets use the hardware PWM for send carrier signal generation
 #else
 # if defined(SEND_PWM_BY_TIMER)
 #undef IR_SEND_PIN // SendPin is determined by timer! This avoids warning in IRTimer.hpp
