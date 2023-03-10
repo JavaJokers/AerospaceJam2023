@@ -30,7 +30,7 @@
 
 // Pump
 #define pump_pin 11
-#define pump_timer_length 5000 // milliseconds
+#define pump_timer_length 6000 // milliseconds
 
 // Commands (note BT_echo_cmd above)
 // Box commands
