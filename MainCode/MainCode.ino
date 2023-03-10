@@ -24,9 +24,9 @@
 
 // Claw Servo
 #define claw_servo_pin 10
-#define claw_servo_initial_position 90
-#define claw_servo_open 120
-#define claw_servo_closed 30
+#define claw_servo_initial_position 130
+#define claw_servo_open 110
+#define claw_servo_closed 175
 
 // Pump
 #define pump_pin 11
