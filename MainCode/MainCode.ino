@@ -27,6 +27,7 @@
 #define claw_servo_initial_position 130
 #define claw_servo_open 110
 #define claw_servo_closed 175
+#define claw_servo_delay 15 // milliseconds between each setp
 
 // Pump
 #define pump_pin 11
@@ -113,12 +114,20 @@ void loop()
     }
     else if (data == claw_open_cmd)
     {
-      claw_servo.write(claw_servo_open);
+      for (int i = claw_servo_initial_position; i >= claw_servo_open; i--)
+      {
+        claw_servo.write(i);
+        delay(claw_servo_delay);
+      }
       sendMsg("Opened claw");
     }
     else if (data == claw_close_cmd)
     {
-      claw_servo.write(claw_servo_closed);
+      for (int i = claw_servo_initial_position; i <= claw_servo_closed; i++)
+      {
+        claw_servo.write(i);
+        delay(claw_servo_delay);
+      }
       sendMsg("Closed claw");
     }
     else if (data == reset_claw_cmd)
