@@ -114,7 +114,7 @@ void loop()
     }
     else if (data == claw_open_cmd)
     {
-      for (int i = claw_servo_initial_position; i >= claw_servo_open; i--)
+      for (int i = claw_servo_closed; i >= claw_servo_open; i--)
       {
         claw_servo.write(i);
         delay(claw_servo_delay);
@@ -123,7 +123,7 @@ void loop()
     }
     else if (data == claw_close_cmd)
     {
-      for (int i = claw_servo_initial_position; i <= claw_servo_closed; i++)
+      for (int i = claw_servo_open; i <= claw_servo_closed; i++)
       {
         claw_servo.write(i);
         delay(claw_servo_delay);
