@@ -195,7 +195,7 @@ void checkForIR() {
           colorWipe(255, 255, 0,50,2000);
         } else if (IrReceiver.decodedIRData.command == 0x09) {
           Serial.println("5");
-          colour_offset=colour_increment*5;
+          
         } else if (IrReceiver.decodedIRData.command == 0x0A) {
           Serial.println("6"); 
         }  else if (IrReceiver.decodedIRData.command == 0x0C) {
