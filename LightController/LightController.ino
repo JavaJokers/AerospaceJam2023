@@ -1,8 +1,55 @@
-#include <SoftwareSerial.h> // Add SoftwareSerial Library
+/*
+ *  RemoteControlBox.ino
+ *
+ * Based on: SimpleReceiver.cpp
+ *
+ *  SimpleReceiver.cpp is part of Arduino-IRremote https://github.com/Arduino-IRremote/Arduino-IRremote.
+ *
+ ************************************************************************************
+ * MIT License
+ *
+ * Copyright (c) 2023 Armin Joachimsmeyer and Java Jokers
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is furnished
+ * to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+ * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+ * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ ************************************************************************************
+ */
+
+/*
+ * Specify which protocol(s) should be used for decoding.
+ * If no protocol is defined, all#define DECODE_DENON        // Includes Sharp
+*/
+
+#define DECODE_SAMSUNG
+
+
+//#define DECODE_WHYNTER protocols (except Bang&Olufsen) are active.
+// * This must be done before the #include <IRremote.hpp>
+
+
+#include <Arduino.h>
+
+#include "PinDefinitionsAndMore.h" // Define macros for input and output pin etc.
+#include <IRremote.hpp>
+
 
 #include <Adafruit_NeoPixel.h> // Add Neopixel Library
 
-#include <StringSplitter.h> // Add Sting Managment Library
 
 #ifdef __AVR__
   #include <avr/power.h> // Required for 16 MHz Adafruit Trinket
@@ -14,6 +61,7 @@
 #define RF_LED_PIN 5
 #define LB_LED_PIN 7
 #define RB_LED_PIN 8
+
 
 String r;
 String g;
@@ -28,16 +76,15 @@ Adafruit_NeoPixel stripRF(LED_COUNT, RF_LED_PIN, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel stripLB(LED_COUNT, LB_LED_PIN, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel stripRB(LED_COUNT, RB_LED_PIN, NEO_GRB + NEO_KHZ800);
 
-SoftwareSerial SensorArduino(2, 3); // Define SoftwareSerial object for the main sensor board
 
 // Global Vars
 String command;
 
 void setup() {
-  Serial.begin(9600); // Begin debugging Serial port
+  Serial.begin(115200); // Begin debugging Serial port
   Serial.println("Serial enabled");
   pinMode(13, OUTPUT);
-  SensorArduino.begin(9600); // Begin SoftwareSerial port
+
 
   // These lines are specifically to support the Adafruit Trinket 5V 16 MHz.
   // Any other board, you can remove this part (but no harm leaving it):
@@ -61,12 +108,53 @@ void setup() {
   stripRB.begin(); // INITIALIZE NeoPixel strip object (REQUIRED)
   stripRB.show(); // Turn OFF all pixels ASAP
   stripRB.setBrightness(50); // Set BRIGHTNESS to about 1/5 (max = 255)
+
+  // Start the receiver and if not 3. parameter specified, take LED_BUILTIN pin from the internal boards definition as default feedback LED
+ IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);
+
+ Serial.print(F("Ready to receive IR signals of protocols: "));
+ printActiveIRProtocols(&Serial);
 }
 
 void loop() {
-  if(effect == 1){
-    rainbow(25);  
-  }
+//  if(effect == 1){
+//    rainbow(25);  
+//  }
+
+  if (IrReceiver.decode()) {
+        IrReceiver.resume(); // Enable receiving of the next value
+        /*
+         * Print a short summary of received data
+         */
+        IrReceiver.printIRResultShort(&Serial);
+        IrReceiver.printIRSendUsage(&Serial);
+        if (IrReceiver.decodedIRData.protocol == UNKNOWN) {
+            Serial.println(F("Received noise or an unknown (or not yet enabled) protocol"));
+            // We have an unknown protocol here, print more info
+            IrReceiver.printIRResultRawFormatted(&Serial, true);
+        }
+        Serial.println();
+
+        /*
+         * !!!Important!!! Enable receiving of the next value,
+         * since receiving has stopped after the end of the current received data packet.
+         */
+
+
+        /*
+         * Finally, check the received data and perform actions according to the received command
+         */
+
+
+       Serial.println("----------------------------------------");
+       Serial.println(String(IrReceiver.decodedIRData.command));
+         
+        if (IrReceiver.decodedIRData.command == 0x60) {
+            Serial.println("Up");
+        } else if (IrReceiver.decodedIRData.command == 0x61) {
+            Serial.println("Down");
+        }
+    } 
 }
 
 void colorWipe(uint32_t color, int wait, int endWait) {
@@ -86,8 +174,8 @@ void colorWipe(uint32_t color, int wait, int endWait) {
 
 void checkForMessage() {
 
-  if (SensorArduino.available()) { // If data can be recieved (If there is data to be read)
-    command = SensorArduino.readStringUntil(';'); // Recieve data until newline character
+  if (1==2) { // If data can be recieved (If there is data to be read)
+    command = "00";
 
     Serial.println(command); // Print the command recieved for debugging
 
@@ -100,21 +188,11 @@ void checkForMessage() {
   }
 }
 
+
+//remove
 void colorConverter(String rgbString) {
-  StringSplitter * splitter = new StringSplitter(rgbString, ',', 3);
-  int itemCount = splitter -> getItemCount();
-
-  for (int i = 0; i < itemCount; i++) {
-    String item = splitter -> getItemAtIndex(i);
-
-    if (i == 0) {
-      r = item;
-    } else if (i == 1) {
-      g = item;
-    } else if (i == 2) {
-      b = item;
-    }
-  }
+ // StringSplitter * splitter = new StringSplitter(rgbString, ',', 3);
+ // int itemCount = 20 -> getItemCount();
 
 }
 
