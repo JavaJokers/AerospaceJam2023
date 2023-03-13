@@ -4,7 +4,7 @@
 // Bluetooth
 #define BT_RX_PIN 3
 #define BT_TX_PIN 2
-#define BT_echo_cmd "e"
+#define BT_echo_cmd "e" // for debugging
 
 // IR Stuff
 #define IR_SEND_PIN 9
@@ -31,7 +31,7 @@
 
 // Pump
 #define pump_pin 11
-#define pump_timer_length 6000 // milliseconds
+#define pump_timer_length 6500 // milliseconds - 6.5 seconds
 
 // Commands (note BT_echo_cmd above)
 // Box commands
