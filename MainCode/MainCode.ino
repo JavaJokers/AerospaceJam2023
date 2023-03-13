@@ -27,7 +27,7 @@
 #define claw_servo_initial_position 130
 #define claw_servo_open 110
 #define claw_servo_closed 175
-#define claw_servo_delay 15 // milliseconds between each step
+#define claw_servo_delay 8 // milliseconds between each step
 
 // Pump
 #define pump_pin 11
