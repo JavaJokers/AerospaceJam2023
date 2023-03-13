@@ -63,9 +63,17 @@
 #define RB_LED_PIN 8
 
 
+
+
 String r;
 String g;
 String b;
+
+int colour_offset = 0;
+int colour_increment = 5000;
+
+
+
 
 int effect = 1;
 // How many NeoPixels are attached to the Arduino?
@@ -117,30 +125,50 @@ void setup() {
 }
 
 void loop() {
-//  if(effect == 1){
-//    rainbow(25);  
-//  }
+  if(effect == 1){
+    rainbow(25);  
+  }
 
-  if (IrReceiver.decode()) {
+ 
+}
+
+void colorWipe(int r, int g, int b, int wait, int endWait) {
+  for (int i = 0; i < stripLF.numPixels(); i++) { // For each pixel in strip...
+    stripRF.setPixelColor(i, r, g, b); //  Set pixel's color (in RAM)
+    stripLF.setPixelColor(i, r, g, b); //  Set pixel's color (in RAM)
+    stripRB.setPixelColor(i, r, g, b); //  Set pixel's color (in RAM)
+    stripLB.setPixelColor(i, r, g, b); //  Set pixel's color (in RAM)
+    stripRF.show(); //  Update strip to match
+    stripLF.show(); //  Update strip to match
+    stripRB.show(); //  Update strip to match
+    stripLB.show(); //  Update strip to match
+    delay(wait); //  Pause for a moment
+  }
+  delay(endWait);
+}
+
+
+
+void checkForIR() {
+
+ if (IrReceiver.decode()) {
         IrReceiver.resume(); // Enable receiving of the next value
         /*
          * Print a short summary of received data
          */
         IrReceiver.printIRResultShort(&Serial);
         IrReceiver.printIRSendUsage(&Serial);
-        if (IrReceiver.decodedIRData.protocol == UNKNOWN) {
-            Serial.println(F("Received noise or an unknown (or not yet enabled) protocol"));
-            // We have an unknown protocol here, print more info
-            IrReceiver.printIRResultRawFormatted(&Serial, true);
-        }
-        Serial.println();
+//        if (IrReceiver.decodedIRData.protocol == UNKNOWN) {
+//            Serial.println(F("Received noise or an unknown (or not yet enabled) protocol"));
+//            // We have an unknown protocol here, print more info
+//            IrReceiver.printIRResultRawFormatted(&Serial, true);
+//        }
+//        Serial.println();
 
         /*
          * !!!Important!!! Enable receiving of the next value,
          * since receiving has stopped after the end of the current received data packet.
          */
-
-
         /*
          * Finally, check the received data and perform actions according to the received command
          */
@@ -153,39 +181,35 @@ void loop() {
             Serial.println("Up");
         } else if (IrReceiver.decodedIRData.command == 0x61) {
             Serial.println("Down");
+        } else if (IrReceiver.decodedIRData.command == 0x04) {
+          Serial.println("1");
+          colorWipe(255, 255, 255,50,2000);
+        } else if (IrReceiver.decodedIRData.command == 0x05) {
+          Serial.println("2");
+          colorWipe(255, 0, 255,50,2000);
+        } else if (IrReceiver.decodedIRData.command == 0x06) {
+          Serial.println("3");
+          colorWipe(0, 255, 255,50,2000);
+        } else if (IrReceiver.decodedIRData.command == 0x08) {
+          Serial.println("4");
+          colorWipe(255, 255, 0,50,2000);
+        } else if (IrReceiver.decodedIRData.command == 0x09) {
+          Serial.println("5");
+          colour_offset=colour_increment*5;
+        } else if (IrReceiver.decodedIRData.command == 0x0A) {
+          Serial.println("6"); 
+        }  else if (IrReceiver.decodedIRData.command == 0x0C) {
+          Serial.println("7");
+        }  else if (IrReceiver.decodedIRData.command == 0x0D) {
+          Serial.println("8");
+        }  else if (IrReceiver.decodedIRData.command == 0x0E) {
+          Serial.println("9");
+        } else if (IrReceiver.decodedIRData.command == 0x11) {
+          Serial.println("0");
         }
-    } 
-}
-
-void colorWipe(uint32_t color, int wait, int endWait) {
-  for (int i = 0; i < stripLF.numPixels(); i++) { // For each pixel in strip...
-    stripRF.setPixelColor(i, color); //  Set pixel's color (in RAM)
-    stripLF.setPixelColor(i, color); //  Set pixel's color (in RAM)
-    stripRB.setPixelColor(i, color); //  Set pixel's color (in RAM)
-    stripLB.setPixelColor(i, color); //  Set pixel's color (in RAM)
-    stripRF.show(); //  Update strip to match
-    stripLF.show(); //  Update strip to match
-    stripRB.show(); //  Update strip to match
-    stripLB.show(); //  Update strip to match
-    delay(wait); //  Pause for a moment
-  }
-  delay(endWait);
-}
-
-void checkForMessage() {
-
-  if (1==2) { // If data can be recieved (If there is data to be read)
-    command = "00";
-
-    Serial.println(command); // Print the command recieved for debugging
-
-      colorConverter(command);
-      Serial.print("r: ");
-      Serial.println(r.toInt());
-      Serial.println(g.toInt());
-      Serial.println(b.toInt());
-      colorWipe(stripLF.Color(g.toInt(), r.toInt(), b.toInt()), 50, 5000);
-  }
+        
+      
+    }
 }
 
 
@@ -213,7 +237,7 @@ void rainbow(int wait) {
       // Here we're using just the single-argument hue variant. The result
       // is passed through strip.gamma32() to provide 'truer' colors
       // before assigning to each pixel:
-      stripLF.setPixelColor(i, stripLF.gamma32(stripLF.ColorHSV(pixelHue)));
+      stripLF.setPixelColor(i, stripLF.gamma32(stripLF.ColorHSV(pixelHue )));
       stripRF.setPixelColor(i, stripRF.gamma32(stripRF.ColorHSV(pixelHue)));
       stripRB.setPixelColor(i, stripRB.gamma32(stripRB.ColorHSV(pixelHue)));
       stripLB.setPixelColor(i, stripLB.gamma32(stripLB.ColorHSV(pixelHue)));
@@ -231,6 +255,6 @@ void delayWithChecking(unsigned int delayAmount) { // Non-blocking version of de
   unsigned long millisToStop = millis() + delayAmount;
 
   while (millisToStop >= millis()) {
-    checkForMessage();
+    checkForIR();
   }
 }
