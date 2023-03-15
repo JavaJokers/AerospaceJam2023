@@ -21,6 +21,7 @@
 #define ultrasonic_trig_pin 5
 #define ultrasonic_echo_pin 4
 #define ultrasonic_pulse_length 10 // microseconds
+#define ultrasonic_num_retries 7
 
 // Claw Servo
 #define claw_servo_pin 10
@@ -39,6 +40,7 @@
 #define close_box_cmd "p"
 // Ultrasonic sensor commands
 #define ultrasonic_sensor_cmd "u"
+#define ultrasonic_average_cmd "q"
 // Claw commands
 #define claw_open_cmd "v"
 #define claw_close_cmd "c"
@@ -103,14 +105,37 @@ void loop()
     }
     else if (data == ultrasonic_sensor_cmd)
     { // Ultrasonic sensor - measure distance
-      digitalWrite(ultrasonic_trig_pin, HIGH);
-      delayMicroseconds(ultrasonic_pulse_length); // Ensure pulse length is 10 microseconds
-      digitalWrite(ultrasonic_trig_pin, LOW);
       float duration_us, distance_cm, distance_in;
-      duration_us = pulseIn(ultrasonic_echo_pin, HIGH); // Duration of echo pulse in µs
+      duration_us = get_ultrasonic_pulse();
       distance_cm = 0.017 * duration_us;
       distance_in = 0.39 * distance_cm;
       sendMsg(String(distance_cm) + " centimeters, " + String(distance_in) + " inches");
+    }
+    else if (data == ultrasonic_average_cmd)
+    {
+      // This one is a bit more complicated: it takes multiple measurements, then sends back the largest value and the average
+      float duration_us, distance_cm, distance_in, largest_distance_cm, largest_distance_in, average_distance_cm, average_distance_in;
+      float total_distance_cm = 0;
+      float total_distance_in = 0;
+
+      for (int i = 0; i < ultrasonic_num_retries; i++)
+      {
+        duration_us = get_ultrasonic_pulse();
+        distance_cm = 0.017 * duration_us;
+        distance_in = 0.39 * distance_cm;
+        total_distance_cm += distance_cm;
+        total_distance_in += distance_in;
+        if (distance_cm > largest_distance_cm)
+        {
+          largest_distance_cm = distance_cm;
+          largest_distance_in = distance_in;
+        }
+      }
+
+      average_distance_cm = total_distance_cm / ultrasonic_num_retries;
+      average_distance_in = total_distance_in / ultrasonic_num_retries;
+
+      sendMsg("Largest: " + String(largest_distance_cm) + " centimeters, " + String(largest_distance_in) + " inches. Average: " + String(average_distance_cm) + " centimeters, " + String(average_distance_in) + " inches.");
     }
     else if (data == claw_open_cmd)
     {
@@ -158,6 +183,13 @@ void loop()
       sendMsg("Err: Unsupported or malformed command");
     }
   }
+}
+
+float get_ultrasonic_pulse() {
+  digitalWrite(ultrasonic_trig_pin, HIGH);
+  delayMicroseconds(ultrasonic_pulse_length);
+  digitalWrite(ultrasonic_trig_pin, LOW);
+  return pulseIn(ultrasonic_echo_pin, HIGH); // Duration of echo pulse in µs
 }
 
 void sendMsg(String msg)
